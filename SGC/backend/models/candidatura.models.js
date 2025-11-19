@@ -1,62 +1,22 @@
-import { DataTypes } from 'sequelize';
-import { sequelize } from '../DB/config.js';
+// models/Candidatura.js
+import { client } from '../DB/config.js';
 
+export const criarTabelaCandidaturas = async () => {
+  const query = `
+    CREATE TABLE IF NOT EXISTS candidaturas (
+      id SERIAL PRIMARY KEY,
+      empresa VARCHAR(255) NOT NULL,
+      vaga VARCHAR(255) NOT NULL,
+      data_candidatura DATE NOT NULL,
+      status VARCHAR(50) NOT NULL CHECK (status IN ('Enviada', 'Em Análise', 'Entrevista Agendada', 'Aguardando Retorno', 'Aprovada', 'Rejeitada')),
+      salario VARCHAR(100),
+      plataforma VARCHAR(100),
+      observacoes TEXT,
+      data_criacao TIMESTAMP DEFAULT NOW(),
+      data_atualizacao TIMESTAMP DEFAULT NOW()
+    );
+  `;
 
-const Candidatura = sequelize.define('Candidatura', {
-  id: {
-    type: DataTypes.INTEGER,
-    primaryKey: true,
-    autoIncrement: true
-  },
-  empresa: {
-    type: DataTypes.STRING(255),
-    allowNull: false,
-    validate: {
-      notEmpty: { msg: 'O nome da empresa é obrigatório' }
-    }
-  },
-  vaga: {
-    type: DataTypes.STRING(255),
-    allowNull: false,
-    validate: {
-      notEmpty: { msg: 'O nome da vaga é obrigatório' }
-    }
-  },
-  dataCandidatura: {
-    type: DataTypes.DATEONLY,
-    allowNull: false,
-    field: 'data_candidatura',
-    validate: {
-      isDate: { msg: 'Data inválida' }
-    }
-  },
-  status: {
-    type: DataTypes.STRING(50),
-    allowNull: false,
-    validate: {
-      isIn: {
-        args: [['Enviada', 'Em Análise', 'Entrevista Agendada', 'Aguardando Retorno', 'Aprovada', 'Rejeitada']],
-        msg: 'Status inválido'
-      }
-    }
-  },
-  salario: {
-    type: DataTypes.STRING(100),
-    allowNull: true
-  },
-  plataforma: {
-    type: DataTypes.STRING(100),
-    allowNull: true
-  },
-  observacoes: {
-    type: DataTypes.TEXT,
-    allowNull: true
-  }
-}, {
-  tableName: 'candidaturas',
-  timestamps: true,
-  createdAt: 'data_criacao',
-  updatedAt: 'data_atualizacao'
-});
-
-export default Candidatura;
+  await client.query(query);
+  console.log('✓ Tabela candidaturas criada ou já existente.');
+};

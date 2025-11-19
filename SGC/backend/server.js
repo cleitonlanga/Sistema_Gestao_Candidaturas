@@ -1,20 +1,23 @@
+// server.js
 import app from './app.js';
-import { sequelize } from './DB/config.js';
+import { client } from './DB/config.js';
+import { criarTabelaCandidaturas } from './models/candidatura.models.js';
 import dotenv from 'dotenv';
+import dns from 'dns';
+dns.setDefaultResultOrder('ipv4first'); // força Node a usar IPv4
+
 
 dotenv.config();
-
 const PORT = process.env.PORT || 3000;
 
 const iniciarServidor = async () => {
   try {
-    await sequelize.authenticate();
+    await client.connect();
     console.log('✓ Conexão com o banco de dados estabelecida com sucesso!');
-    
-    // Sincronizar modelos (criar tabelas se não existirem)
-    await sequelize.sync({ alter: true });
-    console.log('✓ Modelos sincronizados com o banco de dados!');
-    
+
+    // Criar tabela se não existir
+    await criarTabelaCandidaturas();
+
     app.listen(PORT, () => {
       console.log(`✓ Servidor rodando em http://localhost:${PORT}`);
     });
