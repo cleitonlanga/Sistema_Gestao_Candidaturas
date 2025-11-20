@@ -1,9 +1,10 @@
 {
   "name": "sgc",
   "version": "1.0.0",
-  "description": "",
+  "description": "Sistema de acompanhamento de candidaturas",
   "main": "index.js",
-  "scripts": {
+ "scripts": {
+    "start": "node SGC/backend/server.js",
     "dev": "nodemon SGC/backend/server.js"
   },
   "keywords": [],
