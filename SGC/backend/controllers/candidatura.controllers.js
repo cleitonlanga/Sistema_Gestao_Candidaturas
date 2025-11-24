@@ -51,7 +51,7 @@ class CandidaturaController {
           (empresa, vaga, data_candidatura, status, salario, plataforma, link_plataforma, observacoes) 
          VALUES ($1,$2,$3,$4,$5,$6,$7, $8)
          RETURNING *`,
-        [empresa, vaga, dataCandidatura, status, salario, plataforma, observacoes]
+        [empresa, vaga, dataCandidatura, status, salario, plataforma, link_plataforma, observacoes]
       );
 
       res.status(201).json(result.rows[0]);
