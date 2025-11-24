@@ -8,10 +8,30 @@ const API_BASE_URL = window.location.hostname === 'localhost'
 
 console.log('API Base URL:', API_BASE_URL);
 
+const statusOptions = [
+  'Enviada',
+  'Em Análise',
+  'Entrevista Agendada',
+  'Aguardando Retorno',
+  'Aprovada',
+  'Rejeitada'
+];
+
 document.addEventListener('DOMContentLoaded', () => {
   carregarCandidaturas();
   carregarEstatisticas();
   document.getElementById('dataCandidatura').valueAsDate = new Date();
+  
+  // Fechar dropdowns ao clicar fora
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('.status-dropdown')) {
+      document.querySelectorAll('.status-options').forEach(el => {
+        el.classList.remove('show');
+        const badge = el.previousElementSibling;
+        if (badge) badge.classList.remove('active');
+      });
+    }
+  });
 });
 
 document.getElementById('candidaturaForm').addEventListener('submit', async (e) => {
@@ -159,6 +179,70 @@ async function atualizarCandidatura(id, candidatura) {
   }
 }
 
+async function alterarStatus(id, novoStatus) {
+  try {
+    console.log('Alterando status:', id, novoStatus);
+    
+    // Buscar a candidatura atual
+    const candidatura = candidaturas.find(c => c.id === id);
+    if (!candidatura) {
+      throw new Error('Candidatura não encontrada');
+    }
+    
+    // Atualizar apenas o status
+    const candidaturaAtualizada = {
+      empresa: candidatura.empresa,
+      vaga: candidatura.vaga,
+      dataCandidatura: candidatura.data_candidatura || candidatura.dataCandidatura,
+      status: novoStatus,
+      salario: candidatura.salario,
+      plataforma: candidatura.plataforma,
+      link_plataforma: candidatura.link_plataforma,
+      observacoes: candidatura.observacoes
+    };
+    
+    const response = await fetch(`${API_BASE_URL}/candidaturas/${id}`, {
+      method: 'PUT',
+      headers: { 
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(candidaturaAtualizada)
+    });
+    
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || error.error || 'Erro ao alterar status');
+    }
+    
+    console.log('Status alterado com sucesso');
+    
+    await carregarCandidaturas();
+    await carregarEstatisticas();
+    
+  } catch (error) {
+    console.error('Erro ao alterar status:', error);
+    alert('❌ Erro ao alterar status: ' + error.message);
+  }
+}
+
+function toggleStatusDropdown(id) {
+  const dropdown = document.getElementById(`status-options-${id}`);
+  const badge = document.getElementById(`status-badge-${id}`);
+  
+  // Fechar outros dropdowns
+  document.querySelectorAll('.status-options').forEach(el => {
+    if (el !== dropdown) {
+      el.classList.remove('show');
+      const otherBadge = el.previousElementSibling;
+      if (otherBadge) otherBadge.classList.remove('active');
+    }
+  });
+  
+  // Toggle atual
+  dropdown.classList.toggle('show');
+  badge.classList.toggle('active');
+}
+
 async function excluirCandidatura(id) {
   if (!confirm('Tem certeza que deseja excluir esta candidatura?')) return;
   
@@ -247,8 +331,24 @@ function renderizarCandidaturas() {
             <span class="detail-value">${formatarData(dataCandidatura)}</span>
           </div>
           <div class="detail-item">
-            <span class="detail-label">Status</span>
-            <span class="status-badge status-${c.status.toLowerCase().replace(/ /g, '')}">${escapeHtml(c.status)}</span>
+            <span class="detail-label">Status (clique para alterar)</span>
+            <div class="status-dropdown">
+              <button 
+                class="status-badge status-${c.status.toLowerCase().replace(/ /g, '')}"
+                id="status-badge-${c.id}"
+                onclick="toggleStatusDropdown(${c.id})"
+                type="button"
+              >
+                ${escapeHtml(c.status)}
+              </button>
+              <div class="status-options" id="status-options-${c.id}">
+                ${statusOptions.map(status => `
+                  <div class="status-option" onclick="alterarStatus(${c.id}, '${status}'); toggleStatusDropdown(${c.id})">
+                    ${status}
+                  </div>
+                `).join('')}
+              </div>
+            </div>
           </div>
           ${c.salario ? `
             <div class="detail-item">
@@ -262,13 +362,14 @@ function renderizarCandidaturas() {
               <span class="detail-value">${escapeHtml(c.plataforma)}</span>
             </div>
           ` : ''}
-          ${c.link_plataforma ? `
-            <div class="detail-item">
-              <span class="detail-label">Link da Plataforma</span>
-              <span class="detail-value"><a href="${escapeHtml(c.link_plataforma)}" target="_blank">${escapeHtml(c.link_plataforma)}</a></span>
-            </div>
-          ` : ''}
         </div>
+        
+        ${c.link_plataforma ? `
+          <div class="detail-item" style="margin-top: 10px;">
+            <span class="detail-label">Link da Plataforma</span>
+            <span class="detail-value"><a href="${escapeHtml(c.link_plataforma)}" target="_blank">${escapeHtml(c.link_plataforma)}</a></span>
+          </div>
+        ` : ''}
         
         ${c.observacoes ? `
           <div class="observacoes">
