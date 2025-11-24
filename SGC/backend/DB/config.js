@@ -6,7 +6,7 @@ dotenv.config();
 
 // Railway fornece DATABASE_URL automaticamente
 export const client = new Pool({
-  connectionString: process.env.DATABASE_URL,
+  connectionString: process.env.DATABASE_PUBLIC_URL,
   ssl: process.env.NODE_ENV === 'production' ? {
     rejectUnauthorized: false
   } : false,
