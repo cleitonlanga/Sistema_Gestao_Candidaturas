@@ -24,6 +24,7 @@ document.getElementById('candidaturaForm').addEventListener('submit', async (e) 
     status: document.getElementById('status').value,
     salario: document.getElementById('salario').value || null,
     plataforma: document.getElementById('plataforma').value || null,
+    link_plataforma: document.getElementById('link_plataforma').value || null,
     observacoes: document.getElementById('observacoes').value || null
   };
 
@@ -202,6 +203,7 @@ function editarCandidatura(id) {
   document.getElementById('status').value = candidatura.status;
   document.getElementById('salario').value = candidatura.salario || '';
   document.getElementById('plataforma').value = candidatura.plataforma || '';
+  document.getElementById('link_plataforma').value = candidatura.link_plataforma || '';
   document.getElementById('observacoes').value = candidatura.observacoes || '';
 
   editandoId = id;
@@ -258,6 +260,12 @@ function renderizarCandidaturas() {
             <div class="detail-item">
               <span class="detail-label">Plataforma</span>
               <span class="detail-value">${escapeHtml(c.plataforma)}</span>
+            </div>
+          ` : ''}
+          ${c.link_plataforma ? `
+            <div class="detail-item">
+              <span class="detail-label">Link da Plataforma</span>
+              <span class="detail-value"><a href="${escapeHtml(c.link_plataforma)}" target="_blank">${escapeHtml(c.link_plataforma)}</a></span>
             </div>
           ` : ''}
         </div>
