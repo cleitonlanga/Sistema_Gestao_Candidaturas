@@ -13,15 +13,17 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Servir arquivos estáticos
-app.use(express.static(path.join(__dirname, 'frontend')));
 
-// Rotas da API
 app.use('/api', router);
+
+
+// Servir arquivos estáticos
+app.use(express.static(path.join(__dirname, '../frontend')));
 
 // Rota raiz
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'frontend', 'index.html'));
+  res.sendFile(path.join(__dirname, '../frontend', 'index.html'));
 });
+
 
 export default app;
