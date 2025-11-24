@@ -4,14 +4,34 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-
+// Railway fornece DATABASE_URL automaticamente
 export const client = new Pool({
-  host: process.env.PGHOST,
-  user: process.env.PGUSER,
-  password: process.env.PGPASSWORD,
-  database: process.env.PGDATABASE,
-  ssl: { rejectUnauthorized: false },
-  connectionTimeoutMillis: 30000,
-  max: 10, // máximo de conexões
-  idleTimeoutMillis: 30000
+  connectionString: process.env.DATABASE_URL,
+  ssl: process.env.NODE_ENV === 'production' ? {
+    rejectUnauthorized: false
+  } : false,
+  connectionTimeoutMillis: 10000,
+  idleTimeoutMillis: 30000,
+  max: 10,
+  keepAlive: true
 });
+
+client.on('error', (err) => {
+  console.error('Erro no pool PostgreSQL:', err);
+});
+
+client.on('connect', () => {
+  console.log('✓ Conectado ao PostgreSQL Railway');
+});
+
+export const testarConexao = async () => {
+  try {
+    const result = await client.query('SELECT NOW(), current_database()');
+    console.log('✓ Banco conectado:', result.rows[0].current_database);
+    console.log('✓ Timestamp:', result.rows[0].now);
+    return true;
+  } catch (error) {
+    console.error('✗ Erro na conexão:', error.message);
+    return false;
+  }
+};
