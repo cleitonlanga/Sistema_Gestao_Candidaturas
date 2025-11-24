@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
+console.log("Database URL:", process.env.DATABASE_PUBLIC_URL);
 // Railway fornece DATABASE_URL automaticamente
 export const client = new Pool({
   connectionString: process.env.DATABASE_PUBLIC_URL,
