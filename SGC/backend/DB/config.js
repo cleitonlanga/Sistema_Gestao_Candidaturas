@@ -4,7 +4,7 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-console.log("Database URL:", process.env.DATABASE_PUBLIC_URL);
+
 // Railway fornece DATABASE_URL automaticamente
 export const client = new Pool({
   connectionString: process.env.DATABASE_PUBLIC_URL,
@@ -32,6 +32,7 @@ export const testarConexao = async () => {
     console.log('✓ Timestamp:', result.rows[0].now);
     return true;
   } catch (error) {
+    console.log("Database URL:", process.env.DATABASE_PUBLIC_URL);
     console.error('✗ Erro na conexão:', error.message);
     return false;
   }
