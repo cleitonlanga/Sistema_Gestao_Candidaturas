@@ -44,12 +44,12 @@ class CandidaturaController {
   // Criar nova candidatura
   async store(req, res) {
     try {
-      const { empresa, vaga, dataCandidatura, status, salario, plataforma, observacoes } = req.body;
+      const { empresa, vaga, dataCandidatura, status, salario, plataforma, link_plataforma, observacoes } = req.body;
 
       const result = await client.query(
         `INSERT INTO candidaturas 
-          (empresa, vaga, data_candidatura, status, salario, plataforma, observacoes) 
-         VALUES ($1,$2,$3,$4,$5,$6,$7)
+          (empresa, vaga, data_candidatura, status, salario, plataforma, link_plataforma, observacoes) 
+         VALUES ($1,$2,$3,$4,$5,$6,$7, $8)
          RETURNING *`,
         [empresa, vaga, dataCandidatura, status, salario, plataforma, observacoes]
       );
@@ -68,14 +68,14 @@ class CandidaturaController {
   async update(req, res) {
     try {
       const { id } = req.params;
-      const { empresa, vaga, dataCandidatura, status, salario, plataforma, observacoes } = req.body;
+      const { empresa, vaga, dataCandidatura, status, salario, plataforma, link_plataforma, observacoes } = req.body;
 
       const result = await client.query(
         `UPDATE candidaturas
-         SET empresa=$1, vaga=$2, data_candidatura=$3, status=$4, salario=$5, plataforma=$6, observacoes=$7, data_atualizacao=NOW()
-         WHERE id=$8
+         SET empresa=$1, vaga=$2, data_candidatura=$3, status=$4, salario=$5, plataforma=$6, link_plataforma=$7, observacoes=$8,, data_atualizacao=NOW()
+         WHERE id=$9
          RETURNING *`,
-        [empresa, vaga, dataCandidatura, status, salario, plataforma, observacoes, id]
+        [empresa, vaga, dataCandidatura, status, salario, plataforma, link_plataforma, observacoes, id]
       );
 
       if (result.rows.length === 0) {
